@@ -13,21 +13,67 @@ class File:
 Task 1
 """
 def leafFiles(files: list[File]) -> list[str]:
-    return []
+    leaf_nodes = {}
+    for file in files:
+        if leaf_nodes.get(file.id) != False:
+            leaf_nodes[file.id] = file.name
+        leaf_nodes[file.parent] = False
+    return [name for name in leaf_nodes.values() if name]
 
 
 """
 Task 2
 """
 def kLargestCategories(files: list[File], k: int) -> list[str]:
-    return []
+    category_count = {}
+    category_names = []
+
+    for file in files:
+        for category in file.categories:
+            if category_count.get(category) is None:
+                category_names.append(category)
+                category_count[category] = 0
+            category_count[category] += 1
+
+    return sorted(category_names, key = lambda x: (-category_count[x], x))[:k]
 
 
 """
 Task 3
 """
 def largestFileSize(files: list[File]) -> int:
-    return 0
+    
+    weights = {}
+    children = {}
+    roots = []
+
+    for file in files:
+        if file.parent == -1:
+            roots.append(file.id)
+
+        weights[file.id] = file.size
+        if children.get(file.parent) is None:
+            children[file.parent] = []
+
+        children[file.parent].append(file.id)
+
+    max_size = 0
+
+    for root in roots:
+        curr_size = 0
+        stack = [root]
+        while stack:
+            v = stack.pop()
+            curr_size += weights[v]
+            
+            v_children = children.get(v)
+
+            if v_children is not None:
+                for w in children.get(v):
+                    stack.append(w)
+        max_size = max(curr_size, max_size)
+    return max_size
+
 
 
 if __name__ == '__main__':
